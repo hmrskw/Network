@@ -1,26 +1,30 @@
-//alert('Good bey');
-document.getElementById("id").innerHTML="Hey";
-//document.getElementById("button").addEventListener('click',function(){alert("押したな？");});
+function sendMessage(){
+	var name = $("#name").val();
+	var message = $("#message").val();
 
-document.getElementById("button").addEventListener(
-	'click',
-	function(){
-		$.ajax({
-			method: 'GET',
-			url:	'/scream',
-			success: function(response){
-				alert(response);
-			}
-		});
-	}
-);
+	if(!name || !message)return;
 
-setInterval(function(){
 	$.ajax({
-		method: 'GET',
-		url:	'/now',
-		success: function(response){
-			$('#id').text(response);
+		url: "/messages",
+		method:"POST",
+		data: JSON.stringify({name: name,message: message}),
+		contentType:"application/json",
+		success:function(response){
+			console.log(name+":"+message);
 		}
 	});
-},1000);
+}
+
+$("#sendMessage").click(sendMessage);
+
+setInterval(readMessage,1000);
+
+function readMessage(){
+	$.ajax({
+		url: "/messages",
+		method: 'GET',
+		success:function(response){
+			console.log(response);
+		}
+	});
+}
