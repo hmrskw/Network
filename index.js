@@ -6,6 +6,8 @@ var server = http.createServer(function(req,res){
 server.listen(9999);*/
 var express = require('express');
 var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 var port = 9999;
 
 var bodyParser = require('body-parser');
@@ -14,6 +16,15 @@ app.use(bodyParser.json({extended: false}));
 app.use(express.static(__dirname + '/public'));
 
 var messages = [];
+
+io.on('connection',function(socket){
+	console.log(socket.id + 'is connected');
+	socket.emit('init',messages);
+	socket.on('write',function(message){
+		messages.push(message);
+		socket.emit('added',message);
+	});
+});
 
 app.post('/messages',function(req,res){
 	console.log(req.body.name);
@@ -28,24 +39,7 @@ app.get('/messages',function(req,res){
 	res.send(messages);
 })
 
-
-/*app.get('/',function(req,res){
-	res.sendFile(__dirname + '/index.htm');
-});
-app.get('/about',function(req,res){
-	res.send("What on earth are you talking aboit?");
-});
-*/
-
-/*app.get('/scream',function(req,res){
-	res.send('ギャーーーーーー');
-});
-
-app.get('/now',function(req,res){
-	res.send(new Date());
-});
-*/
-app.listen(port,function(){
+server.listen(port,function(){
 	console.log(port + "port is Working");
 });
 
